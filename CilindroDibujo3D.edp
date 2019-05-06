@@ -1,0 +1,21 @@
+load "msh3" load "medit"
+
+border aaa (t=0,30) {x=t;y=0;};
+border bbb (t=0,2) {x=30;y=t;};
+border ccc (t=0,30) {x=30-t;y=2;};
+border ddd (t=0,2) {x=0;y=2-t;};
+func bord = aaa(60) + bbb(40)+ ccc(40) + ddd (60);
+//plot(bord); 
+
+mesh Th2=buildmesh(bord);
+plot(Th2,wait=1);
+
+int[int] l23=[0,0,1,1]; 
+mesh3 Th=buildlayers(Th2,coef= 1, 50 ,zbound=[0,2*pi]
+   ,transfo=[x,y*cos(z),y*sin(z)],facemerge=1,labelmid=l23);
+   
+macro Grad(u) [dx(u),dy(u),dz(u)] //
+fespace Vh(Th,P1);  Vh u,v;
+solve Poisson(u,v) = int3d(Th)( Grad(u)'*Grad(v) ) - int3d(Th)( v) + on(1,u=1);
+plot(u,wait=1,nbiso=20,value=1);
+medit("u",Th,u,wait=1);
